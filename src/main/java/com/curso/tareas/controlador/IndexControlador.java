@@ -83,7 +83,7 @@ public class IndexControlador implements Initializable {
         }
     }
 
-    private void limpiarFormulario() {
+    public void limpiarFormulario() {
         idTareaInterno = null;
         nombreTareaTexto.clear();
         responsableTexto.clear();
@@ -132,5 +132,18 @@ public class IndexControlador implements Initializable {
         mostrarMensaje("Informacion","Tarea modificada.");
         limpiarFormulario();
         listarTareas();
+    }
+
+    public void eliminarTarea() {
+        var tarea = tareaTabla.getSelectionModel().getSelectedItem();
+        if(tarea != null){
+            logger.info("Registro a eliminar "+tarea.toString());
+            tareaServicio.eliminarTarea(tarea);
+            mostrarMensaje("Informacion","Tarea eliminada: "+tarea.getIdTarea());
+            limpiarFormulario();
+            listarTareas();
+        }else{
+            mostrarMensaje("Error", "No se ha seleccionado tarea.");
+        }
     }
 }
