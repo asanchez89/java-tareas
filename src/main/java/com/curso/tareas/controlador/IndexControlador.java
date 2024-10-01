@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,8 @@ public class IndexControlador implements Initializable {
     @FXML
     private TextField estatusTexto;
 
+    private Integer idTareaInterno;
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -72,6 +75,7 @@ public class IndexControlador implements Initializable {
         }else{
             var tarea = new Tarea();
             recolectarDatosFormulario(tarea);
+            tarea.setIdTarea(null);
             tareaServicio.guardarTarea(tarea);
             mostrarMensaje("Informacion", "Tarea Agregada.");
             limpiarFormulario();
@@ -80,12 +84,15 @@ public class IndexControlador implements Initializable {
     }
 
     private void limpiarFormulario() {
+        idTareaInterno = null;
         nombreTareaTexto.clear();
         responsableTexto.clear();
         estatusTexto.clear();
     }
 
     private void recolectarDatosFormulario(Tarea tarea) {
+        if(idTareaInterno != null)
+            tarea.setIdTarea(idTareaInterno);
         tarea.setNombreTarea(nombreTareaTexto.getText());
         tarea.setResponsable(responsableTexto.getText());
         tarea.setEstatus(estatusTexto.getText());
@@ -97,5 +104,33 @@ public class IndexControlador implements Initializable {
         alerta.setHeaderText(null);
         alerta.setContentText(mensaje);
         alerta.showAndWait();
+    }
+
+    public void cargarTareaFormulario() {
+        var tarea = tareaTabla.getSelectionModel().getSelectedItem();
+        if(tarea != null){
+            idTareaInterno = tarea.getIdTarea();
+            nombreTareaTexto.setText(tarea.getNombreTarea());
+            responsableTexto.setText(tarea.getResponsable());
+            estatusTexto.setText(tarea.getEstatus());
+        }
+
+    }
+    public void modificarTarea() {
+        if(idTareaInterno == null){
+            mostrarMensaje("Informacion", "Debe seleccionar una tarea");
+            return;
+        }
+        if(nombreTareaTexto.getText().isEmpty()){
+            mostrarMensaje("Informacion", "Debe proporcionar una tarea");
+            nombreTareaTexto.requestFocus();
+            return;
+        }
+        var tarea = new Tarea();
+        recolectarDatosFormulario(tarea);
+        tareaServicio.guardarTarea(tarea);
+        mostrarMensaje("Informacion","Tarea modificada.");
+        limpiarFormulario();
+        listarTareas();
     }
 }
